@@ -1,1 +1,62 @@
-<p>registration works!</p>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3>Create Account</h3>
+        </div>
+        <div class="card-body">
+          @if (error()) {
+            <div class="alert alert-danger">{{ error() }}</div>
+          }
+
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" formControlName="email" />
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                formControlName="password"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                formControlName="confirmPassword"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary w-100 mb-3"
+              [disabled]="registerForm.invalid"
+            >
+              Register
+            </button>
+          </form>
+
+          <div class="text-center mb-3">
+            <p>Or continue with</p>
+            <button (click)="googleSignIn()" class="btn btn-danger w-100">
+              <i class="fab fa-google"></i> Sign up with Google
+            </button>
+          </div>
+
+          <div class="text-center">
+            <p>Already have an account? <a routerLink="/login">Login here</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

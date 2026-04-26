@@ -1,12 +1,17 @@
 import { Routes } from '@angular/router';
-import { Registration } from './pages/registration/registration';
-import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Group } from './pages/group/group';
+import { Login } from './pages/login/login';
+import { Registration } from './pages/registration/registration';
+import { Account } from './pages/account/account';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-    {path: '', component: Dashboard },
-    {path: 'register', component: Registration },
-    {path: 'login', component: Login },
-    {path: 'groups', component: Group }
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'groups', component: Group, canActivate: [authGuard] },
+  { path: 'account', component: Account, canActivate: [authGuard] },
+  { path: 'login', component: Login },
+  { path: 'register', component: Registration },
+  { path: '**', redirectTo: '/dashboard' },
 ];
