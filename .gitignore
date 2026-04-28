@@ -38,7 +38,8 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
-/src/environments
+/src/environments/*
+!/src/environments/environment.example.ts
 
 # System files
 .DS_Store
