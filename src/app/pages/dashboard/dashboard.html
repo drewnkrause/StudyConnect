@@ -1,1 +1,57 @@
-<p>dashboard works!</p>
+<div class="container py-4">
+  <!-- Welcome Header -->
+  <div class="mb-4">
+    <h2>Welcome back, {{ userName }}!</h2>
+    <p class="text-muted">Here's what's going on with your study groups.</p>
+  </div>
+
+  <!-- Create New Group Button -->
+  <div class="mb-4">
+    <button class="btn btn-primary" (click)="createGroup()">+ Create New Group</button>
+  </div>
+
+  <!-- My Study Groups -->
+  <div class="mb-5">
+    <h4 class="mb-3">My Study Groups</h4>
+    <div class="row g-3">
+      @for (group of myGroups; track group.id) {
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ group.name }}</h5>
+              <p class="card-text text-muted">{{ group.subject }}</p>
+              <span class="badge bg-secondary">{{ group.memberCount }} members</span>
+            </div>
+            <div class="card-footer bg-transparent">
+              <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm"
+                >View Group</a
+              >
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <p class="text-muted">You haven't joined any groups yet. Create one to get started!</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Upcoming Study Sessions -->
+  <div class="mb-5">
+    <h4 class="mb-3">Upcoming Study Sessions</h4>
+    <div class="list-group">
+      @for (session of upcomingSessions; track session.date) {
+        <div class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">{{ session.groupName }}</h6>
+            <small class="text-muted">{{ session.date | date: 'medium' }}</small>
+          </div>
+          <p class="mb-1 text-muted">{{ session.topic }}</p>
+        </div>
+      } @empty {
+        <p class="text-muted">No upcoming sessions scheduled.</p>
+      }
+    </div>
+  </div>
+</div>
