@@ -1,0 +1,7 @@
+.card {
+  transition: box-shadow 0.2s ease;
+}
+
+.card-body.overflow-auto {
+  scroll-behavior: smooth;
+}

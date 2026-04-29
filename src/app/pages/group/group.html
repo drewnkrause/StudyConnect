@@ -1,1 +1,92 @@
-<p>group works!</p>
+<div class="container py-4">
+  <!-- Group Header -->
+  <div class="mb-4">
+    <h2>{{ group.name }}</h2>
+    <p class="text-muted">{{ group.subject }}</p>
+    <p>{{ group.description }}</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left side of page: Members + Upcoming Sessions -->
+    <div class="col-md-4">
+      <!-- Members Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Members</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          @for (member of group.members; track member.id) {
+            <li class="list-group-item d-flex align-items-center gap-2">
+              <span class="badge bg-primary rounded-pill">{{ member.name[0] }}</span>
+              {{ member.name }}
+              @if (member.isOwner) {
+                <span class="badge bg-warning text-dark ms-auto">Owner</span>
+              }
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No members yet.</li>
+          }
+        </ul>
+      </div>
+
+      <!-- Upcoming Sessions Card -->
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Upcoming Sessions</h5>
+          <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
+        </div>
+        <ul class="list-group list-group-flush">
+          @for (session of group.sessions; track session.date) {
+            <li class="list-group-item">
+              <div class="fw-semibold">{{ session.topic }}</div>
+              <small class="text-muted">{{ session.date | date: 'medium' }}</small>
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No sessions scheduled.</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right side of page: Group Chat -->
+    <div class="col-md-8">
+      <div class="card shadow-sm d-flex flex-column" style="height: 600px">
+        <div class="card-header">
+          <h5 class="mb-0">Group Chat</h5>
+        </div>
+
+        <!-- Messages -->
+        <div class="card-body overflow-auto flex-grow-1 d-flex flex-column gap-2">
+          @for (message of group.messages; track message.id) {
+            <div class="d-flex gap-2 align-items-start">
+              <span class="badge bg-primary rounded-pill mt-1">{{ message.senderName[0] }}</span>
+              <div>
+                <div class="fw-semibold">
+                  {{ message.senderName }}
+                  <small class="text-muted fw-normal ms-2">{{
+                    message.date | date: 'shortTime'
+                  }}</small>
+                </div>
+                <div>{{ message.text }}</div>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-muted">No messages yet. Say hello!</p>
+          }
+        </div>
+
+        <!-- Message Input -->
+        <div class="card-footer d-flex gap-2">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Type a message..."
+            [(ngModel)]="newMessage"
+            (keyup.enter)="sendMessage()"
+          />
+          <button class="btn btn-primary" (click)="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
