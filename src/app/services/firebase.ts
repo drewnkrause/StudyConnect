@@ -26,6 +26,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
+import { Group } from '../models/group';
 
 @Injectable({
   providedIn: 'root',
@@ -70,17 +71,17 @@ export class FirebaseService {
 
   // ---- Firestore Groups ----
 
-  async getGroup(groupId: string) {
+  async getGroup(groupId: string): Promise<Group | null> {
     const ref = doc(this.db, 'groups', groupId);
     const snap = await getDoc(ref);
-    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    return snap.exists() ? { id: snap.id, ...snap.data() } as Group : null;
   }
 
-  async getUserGroups(userId: string) {
+  async getUserGroups(userId: string): Promise<Group[]> {
     const ref = collection(this.db, 'groups');
     const q = query(ref, where('memberIds', 'array-contains', userId));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Group));
   }
 
   async createGroup(data: any) {
