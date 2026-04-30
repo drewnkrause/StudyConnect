@@ -7,11 +7,11 @@ import { Account } from './pages/account/account';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: '', component: Dashboard, canActivate: [authGuard] },
+  { path: 'dashboard', redirectTo: '', pathMatch: 'full' },
   { path: 'groups/:id', component: Group, canActivate: [authGuard] },
   { path: 'account', component: Account, canActivate: [authGuard] },
   { path: 'login', component: Login },
   { path: 'register', component: Registration },
-  { path: '**', redirectTo: '/dashboard' },
+  { path: '**', redirectTo: '' },
 ];
