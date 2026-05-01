@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase';
+import { AuthService } from '../../services/auth';
 import { ChatService } from '../../services/chat';
 import { ChatMessage } from '../../models/message';
+import { Group as GroupModel } from '../../models/group';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -15,14 +17,16 @@ import { Observable } from 'rxjs';
   styleUrl: './group.css',
 })
 export class Group implements OnInit, OnDestroy {
-  group: any = null;
+  group: GroupModel | null = null;
+  sessions: any[] = [];
   newMessage: string = '';
   messages$: Observable<ChatMessage[]>;
 
   constructor(
     private route: ActivatedRoute,
     private firebase: FirebaseService,
-    private chatService: ChatService
+    private auth: AuthService,
+    private chatService: ChatService,
   ) {
     this.messages$ = this.chatService.messages$;
   }
@@ -31,14 +35,11 @@ export class Group implements OnInit, OnDestroy {
     const groupId = this.route.snapshot.paramMap.get('id');
     if (!groupId) return;
 
-    // Load group data and sessions
     this.group = await this.firebase.getGroup(groupId);
-    this.group.sessions = await this.firebase.getSessions(groupId);
+    this.sessions = await this.firebase.getSessions(groupId);
 
-    // Check if user can access this group's chat
     const canAccess = await this.chatService.canAccessGroupChat(groupId);
     if (canAccess) {
-      // Join the group chat
       this.chatService.joinGroupChat(groupId);
     } else {
       console.warn('User does not have access to this group chat');
@@ -56,8 +57,7 @@ export class Group implements OnInit, OnDestroy {
     }
   }
 
-  scheduleSession(): void {
-  }
+  scheduleSession(): void {}
 
   ngOnDestroy(): void {
     // Leave the chat room when component is destroyed

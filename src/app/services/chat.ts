@@ -15,7 +15,7 @@ export class ChatService {
 
   constructor(
     private firebaseService: FirebaseService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   /**
@@ -29,19 +29,16 @@ export class ChatService {
     this.currentGroupId = groupId;
 
     // Start listening for messages
-    this.unsubscribeMessages = this.firebaseService.listenToMessages(
-      groupId,
-      (messages: any[]) => {
-        const chatMessages: ChatMessage[] = messages.map(msg => ({
-          id: msg.id,
-          senderId: msg.senderId,
-          senderName: msg.senderName,
-          content: msg.content,
-          sentAt: msg.date // Note: Firebase service uses 'date', but model uses 'sentAt'
-        }));
-        this.messagesSubject.next(chatMessages);
-      }
-    );
+    this.unsubscribeMessages = this.firebaseService.listenToMessages(groupId, (messages: any[]) => {
+      const chatMessages: ChatMessage[] = messages.map((msg) => ({
+        id: msg.id,
+        senderId: msg.senderId,
+        senderName: msg.senderName,
+        content: msg.content,
+        sentAt: msg.date, // Note: Firebase service uses 'date', but model uses 'sentAt'
+      }));
+      this.messagesSubject.next(chatMessages);
+    });
   }
 
   /**
@@ -118,7 +115,14 @@ export class ChatService {
    */
   async getChatHistory(groupId: string, limit: number = 50): Promise<ChatMessage[]> {
     try {
-      return [];
+      const messages = await this.firebaseService.getMessageHistory(groupId, limit);
+      return messages.map((msg) => ({
+        id: msg.id,
+        senderId: msg.senderId,
+        senderName: msg.senderName,
+        content: msg.content,
+        sentAt: msg.date,
+      }));
     } catch (error) {
       console.error('Error fetching chat history:', error);
       return [];

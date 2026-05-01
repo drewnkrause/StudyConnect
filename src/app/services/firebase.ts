@@ -24,6 +24,7 @@ import {
   orderBy,
   onSnapshot,
   Timestamp,
+  limitToLast,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { Group } from '../models/group';
@@ -74,14 +75,14 @@ export class FirebaseService {
   async getGroup(groupId: string): Promise<Group | null> {
     const ref = doc(this.db, 'groups', groupId);
     const snap = await getDoc(ref);
-    return snap.exists() ? { id: snap.id, ...snap.data() } as Group : null;
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as Group) : null;
   }
 
   async getUserGroups(userId: string): Promise<Group[]> {
     const ref = collection(this.db, 'groups');
-    const q = query(ref, where('memberIds', 'array-contains', userId));
+    const q = query(ref, where('members', 'array-contains', userId));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Group));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Group);
   }
 
   async createGroup(data: any) {
@@ -96,6 +97,23 @@ export class FirebaseService {
     const q = query(ref, orderBy('date', 'asc'));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }
+
+  async getUpcomingSessions(groupIds: string[]): Promise<any[]> {
+    const now = Timestamp.now();
+    const sessions: any[] = [];
+
+    for (const groupId of groupIds) {
+      const ref = collection(this.db, 'groups', groupId, 'sessions');
+      const q = query(ref, where('date', '>=', now), orderBy('date', 'asc'));
+      const snap = await getDocs(q);
+      snap.docs.forEach((d) => {
+        sessions.push({ id: d.id, groupId, ...d.data() });
+      });
+    }
+
+    // Sort all sessions between groups by date
+    return sessions.sort((a, b) => a.date.seconds - b.date.seconds);
   }
 
   async addSession(groupId: string, data: any) {
@@ -117,5 +135,12 @@ export class FirebaseService {
   async sendMessage(groupId: string, data: any) {
     const ref = collection(this.db, 'groups', groupId, 'messages');
     return addDoc(ref, { ...data, date: Timestamp.now() });
+  }
+
+  async getMessageHistory(groupId: string, limit: number = 50): Promise<any[]> {
+    const ref = collection(this.db, 'groups', groupId, 'messages');
+    const q = query(ref, orderBy('date', 'asc'), limitToLast(limit));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   }
 }
