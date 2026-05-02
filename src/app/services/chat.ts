@@ -100,8 +100,8 @@ export class ChatService {
       const group = await this.firebaseService.getGroup(groupId);
       if (!group) return false;
 
-      // Check if user is a member of the group
-      return group.members?.includes(currentUser.uid) || false;
+      // Check if user is a member of the group, or the owner by fallback
+      return (group.members?.includes(currentUser.uid) || false) || group.ownerId === currentUser.uid;
     } catch (error) {
       console.error('Error checking group access:', error);
       return false;

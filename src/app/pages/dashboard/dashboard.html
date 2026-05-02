@@ -1,38 +1,155 @@
 <div class="container py-4">
   <!-- Welcome Header -->
   <div class="mb-4">
-    <h2>Welcome back, {{ userName }}!</h2>
+    <h2>Welcome back, {{ userName() }}!</h2>
     <p class="text-muted">Here's what's going on with your study groups.</p>
   </div>
 
   <!-- Create New Group Button -->
   <div class="mb-4">
-    <button class="btn btn-primary" (click)="createGroup()">+ Create New Group</button>
+    <button class="btn btn-primary" (click)="toggleCreateGroupForm()">+ Create New Group</button>
   </div>
+
+  @if (showNewGroupForm) {
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Create a new group</h5>
+        <div class="mb-3">
+          <label class="form-label" for="groupTitle">Group name</label>
+          <input
+            id="groupTitle"
+            class="form-control"
+            type="text"
+            [(ngModel)]="newGroupTitle"
+            placeholder="Example: Calculus Study Group"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="groupCourse">Course code</label>
+          <input
+            id="groupCourse"
+            class="form-control"
+            type="text"
+            [(ngModel)]="newGroupCourseId"
+            placeholder="Example: MATH 104"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="groupType">Group type</label>
+          <select id="groupType" class="form-select" [(ngModel)]="newGroupType">
+            <option value="student">Student-managed</option>
+            <option value="professor">Instructor-managed</option>
+          </select>
+        </div>
+        <div class="form-check mb-3">
+          <input
+            id="groupPrivate"
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="newGroupIsPrivate"
+          />
+          <label class="form-check-label" for="groupPrivate">
+            Private group (invite only)
+          </label>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="groupDescription">Description</label>
+          <textarea
+            id="groupDescription"
+            class="form-control"
+            rows="3"
+            [(ngModel)]="newGroupDescription"
+            placeholder="Add a short description of what your group is focused on"
+          ></textarea>
+        </div>
+        @if (createError) {
+          <div class="alert alert-danger">{{ createError }}</div>
+        }
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" (click)="createGroup()" [disabled]="isCreating">
+            {{ isCreating ? 'Creating…' : 'Create Group' }}
+          </button>
+          <button class="btn btn-outline-secondary" (click)="toggleCreateGroupForm()" type="button">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- My Study Groups -->
   <div class="mb-5">
     <h4 class="mb-3">My Study Groups</h4>
     <div class="row g-3">
-      @for (group of myGroups; track group.id) {
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">{{ group.title }}</h5>
-              <p class="card-text text-muted">{{ group.courseId }}</p>
-              <span class="badge bg-secondary">{{ group.members.length }} members</span>
-            </div>
-            <div class="card-footer bg-transparent">
-              <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm"
-                >View Group</a
-              >
+      @if (isLoadingGroups()) {
+        <div class="col-12">
+          <p class="text-muted">Loading your groups…</p>
+        </div>
+      } @else {
+        @for (group of myGroups(); track group.id) {
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <h5 class="card-title mb-0">{{ group.title }}</h5>
+                  @if (group.ownerId === currentUserId()) {
+                    <span class="badge bg-info text-dark">Owner</span>
+                  }
+                </div>
+                <p class="card-text text-muted">{{ group.courseId }}</p>
+                <span class="badge bg-secondary">{{ group.members.length }} members</span>
+              </div>
+              <div class="card-footer bg-transparent">
+                <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm"
+                  >View Group</a
+                >
+              </div>
             </div>
           </div>
-        </div>
-      } @empty {
+        } @empty {
+          <div class="col-12">
+            <p class="text-muted">You haven't joined any groups yet. Create one to get started!</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Public Study Groups -->
+  <div class="mb-5">
+    <h4 class="mb-3">Public Study Groups</h4>
+    <div class="row g-3">
+      @if (isLoadingGroups()) {
         <div class="col-12">
-          <p class="text-muted">You haven't joined any groups yet. Create one to get started!</p>
+          <p class="text-muted">Loading public groups…</p>
         </div>
+      } @else {
+        @for (group of publicGroups(); track group.id) {
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="card-title mb-0">{{ group.title }}</h5>
+                  <span class="badge bg-success">Public</span>
+                </div>
+                <p class="card-text text-muted">{{ group.courseId }}</p>
+                <p class="card-text">{{ group.description }}</p>
+                <div>
+                  <span class="badge bg-secondary">{{ group.members.length }} members</span>
+                  <span class="badge bg-info text-dark ms-2">{{ group.type === 'professor' ? 'Instructor' : 'Student' }}</span>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent d-flex justify-content-between gap-2">
+                <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm">View</a>
+                <button class="btn btn-sm btn-primary" (click)="joinPublicGroup(group.id)">Join</button>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="col-12">
+            <p class="text-muted">No public groups available right now. Create one or ask your classmates to start a group.</p>
+          </div>
+        }
       }
     </div>
   </div>
@@ -41,7 +158,7 @@
   <div class="mb-5">
     <h4 class="mb-3">Upcoming Study Sessions</h4>
     <div class="list-group">
-      @for (session of upcomingSessions; track session.id) {
+      @for (session of upcomingSessions(); track session.id) {
         <div class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">
             <h6 class="mb-1">{{ getGroupName(session.groupId) }}</h6>

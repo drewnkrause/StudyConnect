@@ -1,9 +1,101 @@
 <div class="container py-4">
   <!-- Group Header -->
   <div class="mb-4">
-    <h2>{{ group?.title }}</h2>
-    <p class="text-muted">{{ group?.courseId }}</p>
-    <p>{{ group?.description }}</p>
+    <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-3">
+      <div>
+        <h2>{{ group?.title }}</h2>
+        <p class="text-muted mb-1">{{ group?.courseId }}</p>
+        <p>{{ group?.description }}</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        @if (group?.type === 'professor') {
+          <span class="badge bg-warning text-dark">Instructor-managed</span>
+        } @else {
+          <span class="badge bg-info text-dark">Student-managed</span>
+        }
+        @if (group?.isPrivate) {
+          <span class="badge bg-secondary">Private</span>
+        } @else {
+          <span class="badge bg-success">Public</span>
+        }
+        @if (isOwner) {
+          <span class="badge bg-success">You own this group</span>
+        }
+        @if (group && !isMember && !group.isPrivate) {
+          <button class="btn btn-sm btn-primary" (click)="joinGroup()">Join Group</button>
+        }
+      </div>
+    </div>
+
+    @if (joinError) {
+      <div class="alert alert-danger">{{ joinError }}</div>
+    }
+
+    @if (isOwner) {
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button class="btn btn-outline-secondary btn-sm" (click)="editMode = !editMode">
+          {{ editMode ? 'Close editor' : 'Edit Group' }}
+        </button>
+      </div>
+
+      @if (editMode) {
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Edit group details</h5>
+            <div class="mb-3">
+              <label class="form-label" for="editTitle">Group name</label>
+              <input id="editTitle" class="form-control" type="text" [(ngModel)]="editTitle" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="editCourse">Course code</label>
+              <input id="editCourse" class="form-control" type="text" [(ngModel)]="editCourseId" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="editDescription">Description</label>
+              <textarea id="editDescription" class="form-control" rows="3" [(ngModel)]="editDescription"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="editType">Group type</label>
+              <select id="editType" class="form-select" [(ngModel)]="editType">
+                <option value="student">Student-managed</option>
+                <option value="professor">Instructor-managed</option>
+              </select>
+            </div>
+            <div class="form-check mb-3">
+              <input id="editPrivate" class="form-check-input" type="checkbox" [(ngModel)]="editIsPrivate" />
+              <label class="form-check-label" for="editPrivate">Private group (invite only)</label>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success" (click)="saveGroupUpdates()">Save changes</button>
+              <button class="btn btn-outline-secondary" type="button" (click)="editMode = false">Cancel</button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (group?.isPrivate) {
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Invite by email</h5>
+            <div class="mb-3">
+              <input
+                class="form-control"
+                type="email"
+                placeholder="student@example.edu"
+                [(ngModel)]="inviteEmail"
+              />
+            </div>
+            @if (inviteError) {
+              <div class="alert alert-danger">{{ inviteError }}</div>
+            }
+            @if (inviteSuccess) {
+              <div class="alert alert-success">{{ inviteSuccess }}</div>
+            }
+            <button class="btn btn-primary" (click)="inviteMemberByEmail()">Send invite</button>
+          </div>
+        </div>
+      }
+    }
   </div>
 
   <div class="row g-4">
@@ -15,12 +107,14 @@
           <h5 class="mb-0">Members</h5>
         </div>
         <ul class="list-group list-group-flush">
-          @for (member of group?.members; track member) {
-            <li class="list-group-item d-flex align-items-center gap-2">
-              <span class="badge bg-primary rounded-pill">{{ member[0] }}</span>
-              {{ member }}
-            </li>
-          } @empty {
+          @if (memberItems.length > 0) {
+            @for (member of memberItems; track member.uid) {
+              <li class="list-group-item d-flex align-items-center gap-2">
+                <span class="badge bg-primary rounded-pill">{{ member.initials }}</span>
+                {{ member.label }}
+              </li>
+            }
+          } @else {
             <li class="list-group-item text-muted">No members yet.</li>
           }
         </ul>

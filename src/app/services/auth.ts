@@ -13,10 +13,38 @@ export class AuthService {
   public authInitialized$ = this.authInitializedSignal.asReadonly();
 
   constructor(private firebaseService: FirebaseService) {
-    this.firebaseService.onAuthStateChange((user) => {
+    this.firebaseService.onAuthStateChange(async (user) => {
       this.currentUserSignal.set(user);
       this.authInitializedSignal.set(true);
+
+      if (user) {
+        try {
+          await this.firebaseService.createOrUpdateUserProfile(user);
+          if (user.email) {
+            await this.firebaseService.acceptInvitesForEmail(user.email, user.uid);
+          }
+        } catch (error) {
+          console.error('Failed to sync user profile or accept invites:', error);
+        }
+      }
     });
+  }
+
+  waitForAuthState(): Promise<User | null> {
+    return new Promise((resolve) => {
+      const unsubscribe = this.firebaseService.onAuthStateChange((user) => {
+        resolve(user);
+        unsubscribe();
+      });
+    });
+  }
+
+  onAuthStateChange(callback: (user: User | null) => void) {
+    return this.firebaseService.onAuthStateChange(callback);
+  }
+
+  getCurrentUser() {
+    return this.currentUserSignal();
   }
 
   // Check if user is authenticated

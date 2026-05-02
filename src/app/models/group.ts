@@ -11,4 +11,5 @@ export interface Group {
   type: 'student' | 'professor';
   department: string;
   lastActivity: Timestamp | FieldValue;
+  invites?: string[];
 }
