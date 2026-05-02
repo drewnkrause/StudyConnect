@@ -1,0 +1,92 @@
+<div class="container py-4">
+  <div class="mb-4">
+    <h2>Browse Study Groups</h2>
+    <p class="text-muted">Find a group to join or create your own.</p>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by title, course, or description..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filterGroups()"
+      />
+    </div>
+    <div class="col-md-4">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Filter by department..."
+        [(ngModel)]="departmentFilter"
+        (ngModelChange)="filterGroups()"
+      />
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100" routerLink="/groups/create">+ Create</button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2 text-muted">Loading groups...</p>
+    </div>
+  }
+
+  <!-- Groups Grid -->
+  @if (!isLoading) {
+    <div class="row g-3">
+      @for (group of filteredGroups; track group.id) {
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title mb-0">{{ group.title }}</h5>
+                <span class="badge bg-secondary">{{ group.type }}</span>
+              </div>
+              <p class="text-muted small mb-1">{{ group.courseId }} · {{ group.department }}</p>
+              <p class="card-text small">{{ group.description }}</p>
+              <span class="badge bg-light text-dark border"
+                >{{ group.members.length }} members</span
+              >
+            </div>
+            <div class="card-footer bg-transparent d-flex gap-2">
+              @if (isMember(group)) {
+                <button class="btn btn-outline-primary btn-sm" (click)="viewGroup(group)">
+                  View Group
+                </button>
+              } @else {
+                <button
+                  class="btn btn-primary btn-sm"
+                  (click)="joinGroup(group)"
+                  [disabled]="joiningGroupId === group.id"
+                >
+                  @if (joiningGroupId === group.id) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  Join Group
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="viewGroup(group)">
+                  Preview
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <p class="text-muted">No groups found. Try adjusting your search or create a new one!</p>
+        </div>
+      }
+    </div>
+  }
+</div>

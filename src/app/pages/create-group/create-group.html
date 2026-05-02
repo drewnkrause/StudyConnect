@@ -1,0 +1,101 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h4 class="mb-0">Create a New Study Group</h4>
+        </div>
+        <div class="card-body">
+          <!-- Error Message -->
+          @if (errorMessage) {
+            <div class="alert alert-danger">{{ errorMessage }}</div>
+          }
+
+          <!-- Group Title -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Group Title <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="e.g. CS301 Study Group"
+              [(ngModel)]="title"
+            />
+          </div>
+
+          <!-- Course ID -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Course ID <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="e.g. CSCI-301"
+              [(ngModel)]="courseId"
+            />
+          </div>
+
+          <!-- Department -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Department <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="e.g. Computer Science"
+              [(ngModel)]="department"
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="What will your group be studying?"
+              [(ngModel)]="description"
+            ></textarea>
+          </div>
+
+          <!-- Group Type -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Group Type</label>
+            <select class="form-select" [(ngModel)]="type">
+              <option value="student">Student</option>
+              <option value="professor">Professor</option>
+            </select>
+          </div>
+
+          <!-- Private Toggle -->
+          <div class="mb-4 form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="isPrivate"
+              [(ngModel)]="isPrivate"
+            />
+            <label class="form-check-label" for="isPrivate"> Make this group private </label>
+            <div class="form-text">
+              Private groups won't appear in browse and require an invite.
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" (click)="createGroup()" [disabled]="isLoading">
+              @if (isLoading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Create Group
+            </button>
+            <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

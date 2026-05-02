@@ -25,6 +25,7 @@ import {
   onSnapshot,
   Timestamp,
   limitToLast,
+  arrayUnion,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { Group } from '../models/group';
@@ -88,6 +89,23 @@ export class FirebaseService {
   async createGroup(data: any) {
     const ref = collection(this.db, 'groups');
     return addDoc(ref, data);
+  }
+
+  async joinGroup(groupId: string, userId: string): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId);
+    await updateDoc(ref, { members: arrayUnion(userId) });
+  }
+
+  async browseGroups(department?: string): Promise<Group[]> {
+    const ref = collection(this.db, 'groups');
+    let q;
+    if (department) {
+      q = query(ref, where('isPrivate', '==', false), where('department', '==', department));
+    } else {
+      q = query(ref, where('isPrivate', '==', false));
+    }
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Group);
   }
 
   // ---- Firestore Sessions ----
