@@ -18,9 +18,9 @@
         <div class="col-md-4">
           <div class="card h-100 shadow-sm">
             <div class="card-body">
-              <h5 class="card-title">{{ group.name }}</h5>
-              <p class="card-text text-muted">{{ group.subject }}</p>
-              <span class="badge bg-secondary">{{ group.memberCount }} members</span>
+              <h5 class="card-title">{{ group.title }}</h5>
+              <p class="card-text text-muted">{{ group.courseId }}</p>
+              <span class="badge bg-secondary">{{ group.members.length }} members</span>
             </div>
             <div class="card-footer bg-transparent">
               <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm"
@@ -41,11 +41,11 @@
   <div class="mb-5">
     <h4 class="mb-3">Upcoming Study Sessions</h4>
     <div class="list-group">
-      @for (session of upcomingSessions; track session.date) {
+      @for (session of upcomingSessions; track session.id) {
         <div class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">
-            <h6 class="mb-1">{{ session.groupName }}</h6>
-            <small class="text-muted">{{ session.date | date: 'medium' }}</small>
+            <h6 class="mb-1">{{ getGroupName(session.groupId) }}</h6>
+            <small class="text-muted">{{ session.date.toDate() | date: 'medium' }}</small>
           </div>
           <p class="mb-1 text-muted">{{ session.topic }}</p>
         </div>

@@ -33,10 +33,10 @@
           <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
         </div>
         <ul class="list-group list-group-flush">
-          @for (session of group?.sessions; track session.id) {
+          @for (session of sessions; track session.id) {
             <li class="list-group-item">
               <div class="fw-semibold">{{ session.topic }}</div>
-              <small class="text-muted">{{ session.date | date: 'medium' }}</small>
+              <small class="text-muted">{{ session.date.toDate() | date: 'medium' }}</small>
             </li>
           } @empty {
             <li class="list-group-item text-muted">No sessions scheduled.</li>
