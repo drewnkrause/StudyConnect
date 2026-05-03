@@ -5,10 +5,14 @@ import { Login } from './pages/login/login';
 import { Registration } from './pages/registration/registration';
 import { Account } from './pages/account/account';
 import { authGuard } from './guards/auth-guard';
+import { CreateGroup } from './pages/create-group/create-group';
+import { BrowseGroups } from './pages/browse-groups/browse-groups';
 
 export const routes: Routes = [
   { path: '', component: Dashboard, canActivate: [authGuard] },
   { path: 'dashboard', redirectTo: '', pathMatch: 'full' },
+  { path: 'groups/create', component: CreateGroup, canActivate: [authGuard] },
+  { path: 'groups/browse', component: BrowseGroups, canActivate: [authGuard] },
   { path: 'groups/:id', component: Group, canActivate: [authGuard] },
   { path: 'account', component: Account, canActivate: [authGuard] },
   { path: 'login', component: Login },
