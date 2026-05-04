@@ -52,7 +52,7 @@
             @if (!dept.isCollapsed) {
               <div class="card-body bg-light-subtle p-0">
                 <div class="list-group list-group-flush">
-                  @for (course of dept.courses; track course.id) {
+                  @for (course of dept.courses; track course.code) {
                     <div class="list-group-item p-3 border-0 bg-transparent hover-bg">
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
