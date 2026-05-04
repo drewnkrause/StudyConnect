@@ -1,1 +1,171 @@
-<p>group works!</p>
+<div class="container py-4">
+  <!-- Group Header -->
+  <div class="mb-4">
+    <h2>{{ group?.title }}</h2>
+    <p class="text-muted">{{ group?.courseId }}</p>
+    <p>{{ group?.description }}</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left side of page: Members + Upcoming Sessions -->
+    <div class="col-md-4">
+      <!-- Members Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Members</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          @for (member of memberNames; track member.uid) {
+            <li class="list-group-item d-flex align-items-center gap-2">
+              <span class="badge bg-primary rounded-pill">{{ member.name.charAt(0) || member.uid[0] }}</span>
+              {{ member.name || member.uid }}
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No members yet.</li>
+          }
+        </ul>
+      </div>
+
+      <!-- Upcoming Sessions Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Upcoming Sessions</h5>
+          @if (canEditSessions()) {
+            <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
+          }
+        </div>
+
+        @if (showSessionForm) {
+          <div class="card-body border-bottom">
+            <div class="mb-3">
+              <label class="form-label">Topic</label>
+              <input type="text" class="form-control" [(ngModel)]="sessionTopic" placeholder="Session topic" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" [(ngModel)]="sessionLocation" placeholder="Location or meeting link" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Start Time</label>
+              <input type="datetime-local" class="form-control" [(ngModel)]="sessionStartTime" />
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="createSession()">Create</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showSessionForm = false">Cancel</button>
+            </div>
+          </div>
+        }
+
+        <ul class="list-group list-group-flush">
+          @for (session of sessions; track session.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ session.topic }}</div>
+                <small class="text-muted">{{ session.startTime.toDate() | date: 'medium' }}</small>
+                @if (session.locaiton) {
+                  <div class="small text-muted">{{ session.locaiton }}</div>
+                }
+              </div>
+              @if (canEditSessions()) {
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteSession(session.id)">Delete</button>
+              }
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No sessions scheduled.</li>
+          }
+        </ul>
+      </div>
+
+      <!-- Shared Resources Card -->
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Resources</h5>
+          @if (canEditResources()) {
+            <button class="btn btn-sm btn-outline-primary" (click)="showResourceForm = !showResourceForm">+ Add</button>
+          }
+        </div>
+
+        @if (showResourceForm) {
+          <div class="card-body border-bottom">
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceTitle" placeholder="Resource title" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceUrl" placeholder="https://..." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Type</label>
+              <select class="form-select" [(ngModel)]="resourceType">
+                <option value="link">Link</option>
+                <option value="file">File</option>
+              </select>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="addResource()">Add</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showResourceForm = false">Cancel</button>
+            </div>
+          </div>
+        }
+
+        <ul class="list-group list-group-flush">
+          @for (resource of resources; track resource.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div style="word-break: break-word;">
+                <a [href]="resource.url" target="_blank" class="fw-semibold">{{ resource.title }}</a>
+                <div class="small text-muted">{{ resource.type }}</div>
+              </div>
+              @if (canEditResources()) {
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource.id)">Delete</button>
+              }
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No resources shared yet.</li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right side of page: Group Chat -->
+    <div class="col-md-8">
+      <div class="card shadow-sm d-flex flex-column" style="height: 600px">
+        <div class="card-header">
+          <h5 class="mb-0">Group Chat</h5>
+        </div>
+
+        <!-- Messages -->
+        <div #messagesContainer class="card-body overflow-auto flex-grow-1 d-flex flex-column gap-2">
+          @for (message of messages$ | async; track message.id) {
+            <div class="d-flex gap-2 align-items-start">
+              <span class="badge bg-primary rounded-pill mt-1">{{ message.senderName[0] }}</span>
+              <div>
+                <div class="fw-semibold">
+                  {{ message.senderName }}
+                  <small class="text-muted fw-normal ms-2">{{
+                    getMessageDate(message.sentAt) | date: 'shortTime'
+                  }}</small>
+                </div>
+                <div>{{ message.content }}</div>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-muted">No messages yet. Say hello!</p>
+          }
+        </div>
+
+        <!-- Message Input -->
+        <div class="card-footer d-flex gap-2">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Type a message..."
+            [(ngModel)]="newMessage"
+            (keyup.enter)="sendMessage()"
+          />
+          <button class="btn btn-primary" (click)="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h4 class="mb-0">Create a New Study Group</h4>
+        </div>
+        <div class="card-body">
+          <!-- Error Message -->
+          @if (errorMessage) {
+            <div class="alert alert-danger">{{ errorMessage }}</div>
+          }
+
+          <!-- Group Title -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Group Title <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="e.g. CSCI313 Study Group"
+              [(ngModel)]="title"
+            />
+          </div>
+
+          <!-- Department -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Department <span class="text-danger">*</span></label
+            >
+            <div class="position-relative">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search departments..."
+                [ngModel]="department || departmentSearchQuery"
+                (ngModelChange)="onDepartmentInputChange($event)"
+                (focus)="showDepartmentDropdown = true"
+              />
+              @if (showDepartmentDropdown && filteredDepartments.length > 0) {
+                <div
+                  class="dropdown-menu show position-absolute w-100"
+                  style="max-height: 200px; overflow-y: auto; z-index: 1000"
+                >
+                  @for (dept of filteredDepartments; track dept) {
+                    <button type="button" class="dropdown-item" (click)="selectDepartment(dept)">
+                      {{ dept }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Course ID -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Course ID <span class="text-danger">*</span></label
+            >
+            <div class="position-relative">
+              @if (!department) {
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Select a department first"
+                  disabled
+                />
+              } @else {
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search courses..."
+                  [(ngModel)]="courseSearchQuery"
+                  (focus)="showCourseDropdown = true"
+                  (ngModelChange)="onCourseSearchChange()"
+                  [value]="courseId || courseSearchQuery"
+                  (input)="courseSearchQuery = $any($event).target.value"
+                />
+                @if (showCourseDropdown && filteredCourses.length > 0) {
+                  <div
+                    class="dropdown-menu show position-absolute w-100"
+                    style="max-height: 200px; overflow-y: auto; z-index: 1000"
+                  >
+                    @for (course of filteredCourses; track course.code) {
+                      <button type="button" class="dropdown-item" (click)="selectCourse(course)">
+                        <strong>{{ course.code }}</strong> - {{ course.name }}
+                      </button>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="What will your group be studying?"
+              [(ngModel)]="description"
+            ></textarea>
+          </div>
+
+          <!-- Group Type -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Group Type</label>
+            <select class="form-select" [(ngModel)]="type">
+              <option value="student">Student</option>
+              <option value="professor">Professor</option>
+            </select>
+          </div>
+
+          <!-- Private Toggle -->
+          <div class="mb-4 form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="isPrivate"
+              [(ngModel)]="isPrivate"
+            />
+            <label class="form-check-label" for="isPrivate"> Make this group private </label>
+            <div class="form-text">
+              Private groups won't appear in browse and require an invite.
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" (click)="createGroup()" [disabled]="isLoading">
+              @if (isLoading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Create Group
+            </button>
+            <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

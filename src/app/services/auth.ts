@@ -8,15 +8,22 @@ import { User } from 'firebase/auth';
 export class AuthService {
   private currentUserSignal = signal<User | null>(null);
   public currentUser$ = this.currentUserSignal.asReadonly();
+  
+  private authInitializedSignal = signal<boolean>(false);
+  public authInitialized$ = this.authInitializedSignal.asReadonly();
 
   constructor(private firebaseService: FirebaseService) {
     this.firebaseService.onAuthStateChange((user) => {
       this.currentUserSignal.set(user);
+      this.authInitializedSignal.set(true);
     });
   }
 
   // Check if user is authenticated
   isAuthenticated = computed(() => !!this.currentUserSignal());
+
+  // Check if auth state has been initialized
+  isAuthInitialized = computed(() => this.authInitializedSignal());
 
   // Google Sign In
   googleSignIn() {
