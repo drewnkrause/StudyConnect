@@ -21,6 +21,10 @@ export class Registration {
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
     confirmPassword: ['', Validators.required],
+    name: ['', Validators.required],
+    studentId: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+    major: ['', Validators.required],
+    university: ['', Validators.required],
   });
 
   async onSubmit() {
@@ -32,8 +36,13 @@ export class Registration {
       }
 
       try {
-        const { email } = this.registerForm.value;
-        await this.authService.register(email!, password!);
+        const { email, name, studentId, major, university } = this.registerForm.value;
+        await this.authService.register(email!, password!, {
+          name: name!,
+          studentId: parseInt(studentId!),
+          major: major!,
+          university: university!,
+        });
         this.router.navigate(['/dashboard']);
       } catch (err: any) {
         this.error.set(err.message || 'Registration failed');
@@ -44,7 +53,18 @@ export class Registration {
   async googleSignIn() {
     try {
       await this.authService.googleSignIn();
-      this.router.navigate(['/dashboard']);
+      const currentUser = this.authService.currentUser$();
+      if (currentUser) {
+        const userData = await this.authService.getUserData(currentUser.uid);
+        if (userData && (userData.studentId === 0 || !userData.major || !userData.university)) {
+          // Redirect to account page to complete profile
+          this.router.navigate(['/account']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
     } catch (err: any) {
       this.error.set(err.message || 'Google sign-in failed');
     }

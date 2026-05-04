@@ -37,7 +37,18 @@ export class Login {
   async googleSignIn() {
     try {
       await this.authService.googleSignIn();
-      this.router.navigate(['/dashboard']);
+      const currentUser = this.authService.currentUser$();
+      if (currentUser) {
+        const userData = await this.authService.getUserData(currentUser.uid);
+        if (userData && (userData.studentId === 0 || !userData.major || !userData.university)) {
+          // Redirect to account page to complete profile
+          this.router.navigate(['/account']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
     } catch (err: any) {
       this.error.set(err.message || 'Google sign-in failed');
     }

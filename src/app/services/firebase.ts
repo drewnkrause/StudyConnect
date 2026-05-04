@@ -56,9 +56,9 @@ export class FirebaseService {
     return result;
   }
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, userData?: Partial<UserAccount>) {
     const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-    await this.createOrUpdateUserDocument(userCredential.user);
+    await this.createOrUpdateUserDocument(userCredential.user, userData);
     return userCredential;
   }
 
@@ -78,7 +78,7 @@ export class FirebaseService {
     return this.auth.currentUser;
   }
 
-  async createOrUpdateUserDocument(user: User) {
+  async createOrUpdateUserDocument(user: User, additionalData?: Partial<UserAccount>) {
     if (!user?.uid) {
       return;
     }
@@ -91,10 +91,11 @@ export class FirebaseService {
       name: user.displayName || user.email || 'Anonymous',
       studentId: 0,
       major: '',
-      university: '',
+      university: 'NDSU',
       enrolledCourseIds: [],
       groupIds: [],
       createdAt: Timestamp.now(),
+      ...additionalData, // Merge additional data
     };
 
     if (existingUser.exists()) {
@@ -103,6 +104,7 @@ export class FirebaseService {
         {
           email: user.email,
           name: user.displayName || user.email || 'Anonymous',
+          ...additionalData, // Merge additional data
         },
         { merge: true },
       );
@@ -130,6 +132,11 @@ export class FirebaseService {
     const ref = doc(this.db, 'users', userId);
     const snap = await getDoc(ref);
     return snap.exists() ? ({ uid: snap.id, ...snap.data() } as UserAccount) : null;
+  }
+
+  async updateUser(userId: string, data: Partial<UserAccount>): Promise<void> {
+    const ref = doc(this.db, 'users', userId);
+    await updateDoc(ref, data);
   }
 
   async createGroup(data: any) {
