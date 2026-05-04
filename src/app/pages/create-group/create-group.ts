@@ -33,6 +33,7 @@ export class CreateGroup implements OnInit {
   courseSearchQuery: string = '';
   showDepartmentDropdown: boolean = false;
   showCourseDropdown: boolean = false;
+  selectedCourseDisplay: string = '';
 
   constructor(
     private firebase: FirebaseService,
@@ -76,6 +77,7 @@ export class CreateGroup implements OnInit {
     this.showDepartmentDropdown = false;
     this.courseId = '';
     this.courseSearchQuery = '';
+    this.selectedCourseDisplay = '';
     this.updateFilteredCourses();
   }
 
@@ -105,6 +107,7 @@ export class CreateGroup implements OnInit {
 
   selectCourse(course: Course): void {
     this.courseId = course.code;
+    this.selectedCourseDisplay = `${course.code} - ${course.name}`;
     this.courseSearchQuery = '';
     this.showCourseDropdown = false;
   }

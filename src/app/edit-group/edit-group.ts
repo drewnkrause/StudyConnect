@@ -38,6 +38,7 @@ export class EditGroup implements OnInit {
   courseSearchQuery: string = '';
   showDepartmentDropdown: boolean = false;
   showCourseDropdown: boolean = false;
+  selectedCourseDisplay: string = '';
 
   constructor(
     private firebase: FirebaseService,
@@ -104,7 +105,7 @@ export class EditGroup implements OnInit {
         (c) => c.code === this.courseId && c.department === this.department,
       );
       if (course) {
-        this.courseSearchQuery = `${course.code} - ${course.name}`;
+        this.selectedCourseDisplay = `${course.code} - ${course.name}`;
       }
 
       this.updateFilteredCourses();
@@ -139,6 +140,7 @@ export class EditGroup implements OnInit {
     this.showDepartmentDropdown = false;
     this.courseId = '';
     this.courseSearchQuery = '';
+    this.selectedCourseDisplay = '';
     this.updateFilteredCourses();
   }
 
@@ -168,7 +170,8 @@ export class EditGroup implements OnInit {
 
   selectCourse(course: Course): void {
     this.courseId = course.code;
-    this.courseSearchQuery = `${course.code} - ${course.name}`;
+    this.selectedCourseDisplay = `${course.code} - ${course.name}`;
+    this.courseSearchQuery = '';
     this.showCourseDropdown = false;
   }
 
