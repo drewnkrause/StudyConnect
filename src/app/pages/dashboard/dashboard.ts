@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-  userName: string = 'there';
+  userName: string = 'User';
   myGroups: Group[] = [];
   upcomingSessions: any[] = [];
 
@@ -22,7 +22,7 @@ export class Dashboard implements OnInit {
     private firebase: FirebaseService,
     private auth: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   getGroupName(groupId: string): string {
