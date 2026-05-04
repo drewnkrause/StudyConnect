@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, signal, computed } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FirebaseService } from '../../services/firebase';
+import { Courses } from '../../services/courses';
 import { Course } from '../../models/course';
 
 interface DepartmentGroup {
@@ -18,6 +18,9 @@ interface DepartmentGroup {
   styleUrl: './course-catalog.css'
 })
 export class CourseCatalog implements OnInit {
+  private coursesService = inject(Courses);
+  private cdr = inject(ChangeDetectorRef);
+
   private allCoursesSignal = signal<Course[]>([]);
   public searchQuery = signal<string>('');
   public isLoading = signal<boolean>(true);
@@ -45,14 +48,9 @@ export class CourseCatalog implements OnInit {
     }).filter(d => d !== null) as DepartmentGroup[];
   });
 
-  constructor(
-    private firebase: FirebaseService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   async ngOnInit(): Promise<void> {
     try {
-      const courses = await this.firebase.getCourses();
+      const courses = await this.coursesService.getCourses();
       this.allCoursesSignal.set(courses);
       
       // Group by department initially

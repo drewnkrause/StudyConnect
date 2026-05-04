@@ -11,8 +11,6 @@ import { Layout } from './pages/layout/layout';
 import { CourseCatalog } from './pages/course-catalog/course-catalog';
 
 export const routes: Routes = [
-  // { path: '', component: Dashboard, canActivate: [authGuard] },
-
   {
     path: '',
     component: Layout,
