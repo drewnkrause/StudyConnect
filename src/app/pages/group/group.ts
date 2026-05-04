@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -6,7 +14,7 @@ import { FirebaseService } from '../../services/firebase';
 import { ChatService } from '../../services/chat';
 import { ChatMessage } from '../../models/message';
 import { Group as GroupModel } from '../../models/group';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-group',
@@ -15,17 +23,21 @@ import { Observable } from 'rxjs';
   templateUrl: './group.html',
   styleUrl: './group.css',
 })
-export class Group implements OnInit, OnDestroy {
+export class Group implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef<HTMLDivElement>;
+
   group: GroupModel | null = null;
+  memberNames: Array<{ uid: string; name: string }> = [];
   sessions: any[] = [];
   newMessage: string = '';
   messages$: Observable<ChatMessage[]>;
+  private messagesSubscription: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private firebase: FirebaseService,
     private chatService: ChatService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {
     this.messages$ = this.chatService.messages$;
   }
@@ -36,6 +48,7 @@ export class Group implements OnInit, OnDestroy {
 
     this.group = await this.firebase.getGroup(groupId);
     this.sessions = await this.firebase.getSessions(groupId);
+    this.memberNames = await this.getNamesById(this.group?.members ?? []);
     this.cdr.detectChanges();
 
     const canAccess = await this.chatService.canAccessGroupChat(groupId);
@@ -47,12 +60,19 @@ export class Group implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewInit(): void {
+    this.messagesSubscription = this.messages$.subscribe(() => {
+      requestAnimationFrame(() => this.scrollChatToBottom());
+    });
+  }
+
   async sendMessage(): Promise<void> {
     if (!this.newMessage.trim()) return;
 
     try {
-      await this.chatService.sendMessage(this.newMessage);
+      const sent = this.newMessage;
       this.newMessage = '';
+      await this.chatService.sendMessage(sent);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
@@ -63,6 +83,36 @@ export class Group implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Leave the chat room when component is destroyed
     this.chatService.leaveGroupChat();
+    this.messagesSubscription?.unsubscribe();
+  }
+
+  private scrollChatToBottom(): void {
+    if (!this.messagesContainer?.nativeElement) {
+      return;
+    }
+
+    const element = this.messagesContainer.nativeElement;
+    element.scrollTop = element.scrollHeight;
+  }
+
+  private async getNamesById(
+    memberUids: string[] = [],
+  ): Promise<Array<{ uid: string; name: string }>> {
+    if (!memberUids?.length) {
+      return [];
+    }
+
+    const members = await Promise.all(
+      memberUids.map(async (uid) => {
+        const user = await this.firebase.getUser(uid);
+        return {
+          uid,
+          name: user?.name || user?.email || uid,
+        };
+      }),
+    );
+
+    return members;
   }
 
   getMessageDate(sentAt: any): Date | null {

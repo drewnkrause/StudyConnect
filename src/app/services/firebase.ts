@@ -17,6 +17,7 @@ import {
   getDoc,
   getDocs,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -29,6 +30,7 @@ import {
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { Group } from '../models/group';
+import { UserAccount } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -48,11 +50,15 @@ export class FirebaseService {
 
   async googleSignIn() {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(this.auth, provider);
+    const result = await signInWithPopup(this.auth, provider);
+    await this.createOrUpdateUserDocument(result.user);
+    return result;
   }
 
   async register(email: string, password: string) {
-    return createUserWithEmailAndPassword(this.auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+    await this.createOrUpdateUserDocument(userCredential.user);
+    return userCredential;
   }
 
   async login(email: string, password: string) {
@@ -71,6 +77,39 @@ export class FirebaseService {
     return this.auth.currentUser;
   }
 
+  async createOrUpdateUserDocument(user: User) {
+    if (!user?.uid) {
+      return;
+    }
+
+    const userRef = doc(this.db, 'users', user.uid);
+    const existingUser = await getDoc(userRef);
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName || user.email || 'Anonymous',
+      studentId: 0,
+      major: '',
+      university: '',
+      enrolledCourseIds: [],
+      groupIds: [],
+      createdAt: Timestamp.now(),
+    };
+
+    if (existingUser.exists()) {
+      await setDoc(
+        userRef,
+        {
+          email: user.email,
+          name: user.displayName || user.email || 'Anonymous',
+        },
+        { merge: true },
+      );
+    } else {
+      await setDoc(userRef, userData);
+    }
+  }
+
   // ---- Firestore Groups ----
 
   async getGroup(groupId: string): Promise<Group | null> {
@@ -84,6 +123,12 @@ export class FirebaseService {
     const q = query(ref, where('members', 'array-contains', userId));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Group);
+  }
+
+  async getUser(userId: string): Promise<UserAccount | null> {
+    const ref = doc(this.db, 'users', userId);
+    const snap = await getDoc(ref);
+    return snap.exists() ? ({ uid: snap.id, ...snap.data() } as UserAccount) : null;
   }
 
   async createGroup(data: any) {
