@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { FirebaseService } from './firebase';
 import { User } from 'firebase/auth';
+import { UserAccount } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,7 @@ import { User } from 'firebase/auth';
 export class AuthService {
   private currentUserSignal = signal<User | null>(null);
   public currentUser$ = this.currentUserSignal.asReadonly();
-  
+
   private authInitializedSignal = signal<boolean>(false);
   public authInitialized$ = this.authInitializedSignal.asReadonly();
 
@@ -31,8 +32,8 @@ export class AuthService {
   }
 
   // Email/Password Register
-  register(email: string, password: string) {
-    return this.firebaseService.register(email, password);
+  register(email: string, password: string, userData?: Partial<UserAccount>) {
+    return this.firebaseService.register(email, password, userData);
   }
 
   // Email/Password Login
@@ -43,5 +44,10 @@ export class AuthService {
   // Logout
   logout() {
     return this.firebaseService.logout();
+  }
+
+  // Get user data
+  getUserData(userId: string) {
+    return this.firebaseService.getUser(userId);
   }
 }
