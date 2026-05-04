@@ -19,21 +19,8 @@
             <input
               type="text"
               class="form-control"
-              placeholder="e.g. CS301 Study Group"
+              placeholder="e.g. CSCI313 Study Group"
               [(ngModel)]="title"
-            />
-          </div>
-
-          <!-- Course ID -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold"
-              >Course ID <span class="text-danger">*</span></label
-            >
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g. CSCI-301"
-              [(ngModel)]="courseId"
             />
           </div>
 
@@ -42,12 +29,68 @@
             <label class="form-label fw-semibold"
               >Department <span class="text-danger">*</span></label
             >
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g. Computer Science"
-              [(ngModel)]="department"
-            />
+            <div class="position-relative">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search departments..."
+                [ngModel]="department || departmentSearchQuery"
+                (ngModelChange)="onDepartmentInputChange($event)"
+                (focus)="showDepartmentDropdown = true"
+              />
+              @if (showDepartmentDropdown && filteredDepartments.length > 0) {
+                <div
+                  class="dropdown-menu show position-absolute w-100"
+                  style="max-height: 200px; overflow-y: auto; z-index: 1000"
+                >
+                  @for (dept of filteredDepartments; track dept) {
+                    <button type="button" class="dropdown-item" (click)="selectDepartment(dept)">
+                      {{ dept }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Course ID -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold"
+              >Course ID <span class="text-danger">*</span></label
+            >
+            <div class="position-relative">
+              @if (!department) {
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Select a department first"
+                  disabled
+                />
+              } @else {
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search courses..."
+                  [(ngModel)]="courseSearchQuery"
+                  (focus)="showCourseDropdown = true"
+                  (ngModelChange)="onCourseSearchChange()"
+                  [value]="courseId || courseSearchQuery"
+                  (input)="courseSearchQuery = $any($event).target.value"
+                />
+                @if (showCourseDropdown && filteredCourses.length > 0) {
+                  <div
+                    class="dropdown-menu show position-absolute w-100"
+                    style="max-height: 200px; overflow-y: auto; z-index: 1000"
+                  >
+                    @for (course of filteredCourses; track course.id) {
+                      <button type="button" class="dropdown-item" (click)="selectCourse(course)">
+                        <strong>{{ course.code }}</strong> - {{ course.name }}
+                      </button>
+                    }
+                  </div>
+                }
+              }
+            </div>
           </div>
 
           <!-- Description -->
