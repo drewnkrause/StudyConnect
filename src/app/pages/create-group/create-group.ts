@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase';
 import { AuthService } from '../../services/auth';
+import { Courses } from '../../services/courses';
 import { Course } from '../../models/course';
 import { Timestamp } from 'firebase/firestore';
 
@@ -37,11 +38,12 @@ export class CreateGroup implements OnInit {
     private firebase: FirebaseService,
     private auth: AuthService,
     private router: Router,
+    private coursesService: Courses,
   ) {}
 
   async ngOnInit(): Promise<void> {
     try {
-      this.allCourses = await this.firebase.getCourses();
+      this.allCourses = await this.coursesService.getCourses();
       const uniqueDepts = new Set(this.allCourses.map((c) => c.department));
       this.departments = Array.from(uniqueDepts).sort();
     } catch (error) {

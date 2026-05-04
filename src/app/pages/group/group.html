@@ -27,19 +27,101 @@
       </div>
 
       <!-- Upcoming Sessions Card -->
-      <div class="card shadow-sm">
+      <div class="card shadow-sm mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Upcoming Sessions</h5>
-          <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
+          @if (canEditSessions()) {
+            <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
+          }
         </div>
+
+        @if (showSessionForm) {
+          <div class="card-body border-bottom">
+            <div class="mb-3">
+              <label class="form-label">Topic</label>
+              <input type="text" class="form-control" [(ngModel)]="sessionTopic" placeholder="Session topic" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" [(ngModel)]="sessionLocation" placeholder="Location or meeting link" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Start Time</label>
+              <input type="datetime-local" class="form-control" [(ngModel)]="sessionStartTime" />
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="createSession()">Create</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showSessionForm = false">Cancel</button>
+            </div>
+          </div>
+        }
+
         <ul class="list-group list-group-flush">
           @for (session of sessions; track session.id) {
-            <li class="list-group-item">
-              <div class="fw-semibold">{{ session.topic }}</div>
-              <small class="text-muted">{{ session.date.toDate() | date: 'medium' }}</small>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ session.topic }}</div>
+                <small class="text-muted">{{ session.startTime.toDate() | date: 'medium' }}</small>
+                @if (session.locaiton) {
+                  <div class="small text-muted">{{ session.locaiton }}</div>
+                }
+              </div>
+              @if (canEditSessions()) {
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteSession(session.id)">Delete</button>
+              }
             </li>
           } @empty {
             <li class="list-group-item text-muted">No sessions scheduled.</li>
+          }
+        </ul>
+      </div>
+
+      <!-- Shared Resources Card -->
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Resources</h5>
+          @if (canEditResources()) {
+            <button class="btn btn-sm btn-outline-primary" (click)="showResourceForm = !showResourceForm">+ Add</button>
+          }
+        </div>
+
+        @if (showResourceForm) {
+          <div class="card-body border-bottom">
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceTitle" placeholder="Resource title" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceUrl" placeholder="https://..." />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Type</label>
+              <select class="form-select" [(ngModel)]="resourceType">
+                <option value="link">Link</option>
+                <option value="file">File</option>
+              </select>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="addResource()">Add</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showResourceForm = false">Cancel</button>
+            </div>
+          </div>
+        }
+
+        <ul class="list-group list-group-flush">
+          @for (resource of resources; track resource.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div style="word-break: break-word;">
+                <a [href]="resource.url" target="_blank" class="fw-semibold">{{ resource.title }}</a>
+                <div class="small text-muted">{{ resource.type }}</div>
+              </div>
+              @if (canEditResources()) {
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource.id)">Delete</button>
+              }
+            </li>
+          } @empty {
+            <li class="list-group-item text-muted">No resources shared yet.</li>
           }
         </ul>
       </div>

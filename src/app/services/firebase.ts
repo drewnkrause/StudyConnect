@@ -27,6 +27,7 @@ import {
   Timestamp,
   limitToLast,
   arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { Group } from '../models/group';
@@ -141,6 +142,25 @@ export class FirebaseService {
     await updateDoc(ref, { members: arrayUnion(userId) });
   }
 
+  async leaveGroup(groupId: string, userId: string): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId);
+    await updateDoc(ref, { members: arrayRemove(userId) });
+  }
+
+  async updateGroup(groupId: string, data: any): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId);
+    await updateDoc(ref, data);
+  }
+
+  async getUserByEmail(email: string): Promise<UserAccount | null> {
+    const ref = collection(this.db, 'users');
+    const q = query(ref, where('email', '==', email));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    const docSnap = snap.docs[0];
+    return { uid: docSnap.id, ...docSnap.data() } as UserAccount;
+  }
+
   async browseGroups(department?: string): Promise<Group[]> {
     const ref = collection(this.db, 'groups');
     let q;
@@ -157,7 +177,7 @@ export class FirebaseService {
 
   async getSessions(groupId: string) {
     const ref = collection(this.db, 'groups', groupId, 'sessions');
-    const q = query(ref, orderBy('date', 'asc'));
+    const q = query(ref, orderBy('startTime', 'asc'));
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   }
@@ -168,20 +188,41 @@ export class FirebaseService {
 
     for (const groupId of groupIds) {
       const ref = collection(this.db, 'groups', groupId, 'sessions');
-      const q = query(ref, where('date', '>=', now), orderBy('date', 'asc'));
+      const q = query(ref, where('startTime', '>=', now), orderBy('startTime', 'asc'));
       const snap = await getDocs(q);
       snap.docs.forEach((d) => {
         sessions.push({ id: d.id, groupId, ...d.data() });
       });
     }
 
-    // Sort all sessions between groups by date
-    return sessions.sort((a, b) => a.date.seconds - b.date.seconds);
+    // Sort all sessions between groups by startTime
+    return sessions.sort((a, b) => a.startTime.seconds - b.startTime.seconds);
   }
 
   async addSession(groupId: string, data: any) {
     const ref = collection(this.db, 'groups', groupId, 'sessions');
     return addDoc(ref, data);
+  }
+
+  async deleteSession(groupId: string, sessionId: string): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId, 'sessions', sessionId);
+    await deleteDoc(ref);
+  }
+
+  async addResource(groupId: string, data: any) {
+    const ref = collection(this.db, 'groups', groupId, 'resources');
+    return addDoc(ref, { ...data, uploadedAt: Timestamp.now() });
+  }
+
+  async getResources(groupId: string) {
+    const ref = collection(this.db, 'groups', groupId, 'resources');
+    const snap = await getDocs(ref);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }
+
+  async deleteResource(groupId: string, resourceId: string): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId, 'resources', resourceId);
+    await deleteDoc(ref);
   }
 
   // ---- Firestore Messages ----

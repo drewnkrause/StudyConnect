@@ -3,7 +3,7 @@
     <div class="col-md-7">
       <div class="card shadow-sm">
         <div class="card-header">
-          <h4 class="mb-0">Create a New Study Group</h4>
+          <h4 class="mb-0">Edit Study Group</h4>
         </div>
         <div class="card-body">
           <!-- Error Message -->
@@ -127,13 +127,56 @@
             </div>
           </div>
 
+          <!-- Invite Members -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Invite Members</label>
+            <div class="input-group">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Enter email address"
+                [(ngModel)]="inviteEmail"
+              />
+              <button class="btn btn-outline-primary" (click)="inviteMember()">Invite</button>
+            </div>
+            <div class="form-text">
+              Enter the email of a registered user to invite them to the group.
+            </div>
+          </div>
+
+          <!-- Current Members -->
+          <div class="mb-4">
+            <h5>Current Members</h5>
+            @if (members.length === 0) {
+              <p class="text-muted">Loading members...</p>
+            } @else {
+              <ul class="list-group">
+                @for (member of members; track member.uid) {
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ member.name || 'Unknown' }} ({{ member.email }})
+                    @if (member.uid === currentUserId) {
+                      <span class="badge bg-primary">Owner</span>
+                    } @else {
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="removeMember(member.uid)"
+                      >
+                        Remove
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
           <!-- Buttons -->
           <div class="d-flex gap-2">
-            <button class="btn btn-primary" (click)="createGroup()" [disabled]="isLoading">
+            <button class="btn btn-primary" (click)="updateGroup()" [disabled]="isLoading">
               @if (isLoading) {
                 <span class="spinner-border spinner-border-sm me-2"></span>
               }
-              Create Group
+              Update Group
             </button>
             <button class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
           </div>
