@@ -161,4 +161,13 @@ export class FirebaseService {
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   }
+
+  // ---- Firestore Courses ----
+
+  async getCourses(): Promise<any[]> {
+    const ref = collection(this.db, 'courses');
+    const q = query(ref, orderBy('department', 'asc'), orderBy('code', 'asc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }
 }

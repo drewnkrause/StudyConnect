@@ -1,0 +1,79 @@
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="mb-3">Course Catalog</h2>
+      <p class="text-muted">Explore courses offered across all departments.</p>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="row mb-4">
+    <div class="col-md-8 col-lg-6">
+      <div class="input-group shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control border-start-0 ps-0"
+          placeholder="Search courses, codes, or departments..."
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Departments List -->
+    <div class="row">
+      <div class="col">
+        @for (dept of filteredDepartments(); track dept.name) {
+          <div class="card mb-3 shadow-sm overflow-hidden border-0">
+            <div 
+              class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3 cursor-pointer"
+              (click)="toggleDepartment(dept.name)"
+              style="cursor: pointer;"
+            >
+              <h5 class="mb-0 text-primary">{{ dept.name }}</h5>
+              <div class="d-flex align-items-center">
+                <span class="badge bg-light text-dark me-3">{{ dept.courses.length }} Courses</span>
+                <i class="bi" [class.bi-chevron-down]="dept.isCollapsed" [class.bi-chevron-up]="!dept.isCollapsed"></i>
+              </div>
+            </div>
+            
+            @if (!dept.isCollapsed) {
+              <div class="card-body bg-light-subtle p-0">
+                <div class="list-group list-group-flush">
+                  @for (course of dept.courses; track course.id) {
+                    <div class="list-group-item p-3 border-0 bg-transparent hover-bg">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <h6 class="mb-1 fw-bold">{{ course.code }}: {{ course.name }}</h6>
+                          <p class="mb-0 text-muted small">{{ course.description }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @empty {
+          <div class="text-center py-5">
+            <i class="bi bi-search text-muted display-4 mb-3 d-block"></i>
+            <h4>No courses found</h4>
+            <p class="text-muted">Try adjusting your search query.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

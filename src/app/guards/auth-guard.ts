@@ -1,23 +1,27 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map, take } from 'rxjs';
 
 export const authGuard = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // If auth state hasn't been initialized yet, block navigation
-  // The guard will be re-evaluated once auth is initialized
-  if (!authService.isAuthInitialized()) {
-    return false;
+  const checkAuth = (): boolean | UrlTree => {
+    if (authService.isAuthenticated()) {
+      return true;
+    }
+    return router.createUrlTree(['/login']);
+  };
+
+  if (authService.isAuthInitialized()) {
+    return checkAuth();
   }
 
-  // Once auth is initialized, check if user is authenticated
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-
-  // If not authenticated, redirect to login
-  router.navigate(['/login']);
-  return false;
+  return toObservable(authService.authInitialized$).pipe(
+    filter((initialized) => initialized),
+    take(1),
+    map(() => checkAuth())
+  );
 };

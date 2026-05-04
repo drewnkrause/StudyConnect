@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase';
-import { AuthService } from '../../services/auth';
 import { ChatService } from '../../services/chat';
 import { ChatMessage } from '../../models/message';
 import { Group as GroupModel } from '../../models/group';
@@ -25,8 +24,8 @@ export class Group implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private firebase: FirebaseService,
-    private auth: AuthService,
     private chatService: ChatService,
+    private cdr: ChangeDetectorRef
   ) {
     this.messages$ = this.chatService.messages$;
   }
@@ -37,10 +36,12 @@ export class Group implements OnInit, OnDestroy {
 
     this.group = await this.firebase.getGroup(groupId);
     this.sessions = await this.firebase.getSessions(groupId);
+    this.cdr.detectChanges();
 
     const canAccess = await this.chatService.canAccessGroupChat(groupId);
     if (canAccess) {
       this.chatService.joinGroupChat(groupId);
+      this.cdr.detectChanges();
     } else {
       console.warn('User does not have access to this group chat');
     }

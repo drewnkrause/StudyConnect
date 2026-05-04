@@ -1,0 +1,19 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-bg:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.card-header:hover {
+  background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.bg-light-subtle {
+  background-color: #f8f9fa !important;
+}
