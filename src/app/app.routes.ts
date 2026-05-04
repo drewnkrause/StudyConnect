@@ -8,6 +8,7 @@ import { authGuard } from './guards/auth-guard';
 import { CreateGroup } from './pages/create-group/create-group';
 import { BrowseGroups } from './pages/browse-groups/browse-groups';
 import { Layout } from './pages/layout/layout';
+import { CourseCatalog } from './pages/course-catalog/course-catalog';
 
 export const routes: Routes = [
   // { path: '', component: Dashboard, canActivate: [authGuard] },
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: 'account', component: Account },
       { path: 'groups/create', component: CreateGroup },
       { path: 'groups/browse', component: BrowseGroups },
+      { path: 'courses', component: CourseCatalog },
       { path: 'groups/:id', component: Group },
     ],
   },
