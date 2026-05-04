@@ -11,14 +11,7 @@ export class Courses {
 
   async getCourses(): Promise<Course[]> {
     return firstValueFrom(
-      this.http.get<any[]>('/courses.json').pipe(
-        map((courses) =>
-          courses.map((course) => ({
-            ...course,
-            id: course.id || course.code, // Use code as ID if id is missing
-          }))
-        )
-      )
+      this.http.get<any[]>('/courses.json')
     );
   }
 }
