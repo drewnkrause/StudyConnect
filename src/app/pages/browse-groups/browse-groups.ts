@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -27,20 +27,18 @@ export class BrowseGroups implements OnInit {
     private firebase: FirebaseService,
     private auth: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await new Promise<void>((resolve) => {
-      const unsubscribe = this.firebase.onAuthStateChange((user) => {
-        unsubscribe();
-        resolve();
-      });
-    });
-
     const user = this.auth.currentUser$();
-    if (user) {
-      this.currentUserId = user.uid;
+    if (!user) {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
     }
+
+    this.currentUserId = user.uid;
 
     try {
       this.allGroups = await this.firebase.browseGroups();
@@ -50,6 +48,7 @@ export class BrowseGroups implements OnInit {
       this.errorMessage = 'Failed to load groups. Please try again.';
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

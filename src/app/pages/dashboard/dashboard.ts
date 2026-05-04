@@ -30,16 +30,11 @@ export class Dashboard implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await new Promise<void>((resolve) => {
-      const unsubscribe = this.firebase.onAuthStateChange((user) => {
-        unsubscribe();
-        resolve();
-      });
-    });
-
     const user = this.auth.currentUser$();
-    if (user) {
-      this.userName = user.displayName || user.email || 'there';
+    if (!user) return;
+
+    this.userName = user.displayName || user.email || 'there';
+    try {
       this.myGroups = await this.firebase.getUserGroups(user.uid);
       console.log('Current user UID:', user.uid);
       console.log('My groups:', this.myGroups);
@@ -48,6 +43,9 @@ export class Dashboard implements OnInit {
       if (groupIds.length > 0) {
         this.upcomingSessions = await this.firebase.getUpcomingSessions(groupIds);
       }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
       this.cdr.detectChanges();
     }
   }
