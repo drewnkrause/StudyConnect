@@ -71,11 +71,9 @@
                   type="text"
                   class="form-control"
                   placeholder="Search courses..."
-                  [(ngModel)]="courseSearchQuery"
+                  [ngModel]="selectedCourseDisplay || courseSearchQuery"
                   (focus)="showCourseDropdown = true"
-                  (ngModelChange)="onCourseSearchChange()"
-                  [value]="courseId || courseSearchQuery"
-                  (input)="courseSearchQuery = $any($event).target.value"
+                  (ngModelChange)="courseSearchQuery = $event; onCourseSearchChange()"
                 />
                 @if (showCourseDropdown && filteredCourses.length > 0) {
                   <div

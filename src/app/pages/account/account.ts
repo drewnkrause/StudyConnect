@@ -36,6 +36,7 @@ export class Account implements OnInit {
   showDepartmentDropdown: boolean = false;
   showCourseDropdown: boolean = false;
   selectedDepartment: string = '';
+  selectedCourseDisplay: string = '';
 
   profileForm = this.fb.group({
     name: ['', Validators.required],
@@ -122,6 +123,7 @@ export class Account implements OnInit {
     this.departmentSearchQuery = '';
     this.showDepartmentDropdown = false;
     this.courseSearchQuery = '';
+    this.selectedCourseDisplay = '';
     this.updateFilteredCourses();
   }
 
@@ -162,13 +164,17 @@ export class Account implements OnInit {
         await this.loadEnrolledCourses(updatedIds);
         this.success.set('Course added successfully');
         this.error.set('');
+        // Clear the selection fields after successful addition
+        this.showCourseDropdown = false;
+        this.selectedCourseDisplay = '';
+        this.courseSearchQuery = '';
+        this.selectedDepartment = '';
+        this.departmentSearchQuery = '';
       } catch (err: any) {
         this.error.set(err.message || 'Failed to add course');
         this.success.set('');
       }
     }
-    this.showCourseDropdown = false;
-    this.courseSearchQuery = '';
   }
 
   async removeCourse(courseId: string): Promise<void> {
