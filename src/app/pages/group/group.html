@@ -17,7 +17,9 @@
         <ul class="list-group list-group-flush">
           @for (member of memberNames; track member.uid) {
             <li class="list-group-item d-flex align-items-center gap-2">
-              <span class="badge bg-primary rounded-pill">{{ member.name.charAt(0) || member.uid[0] }}</span>
+              <span class="badge bg-primary rounded-pill">{{
+                member.name.charAt(0) || member.uid[0]
+              }}</span>
               {{ member.name || member.uid }}
             </li>
           } @empty {
@@ -31,7 +33,9 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Upcoming Sessions</h5>
           @if (canEditSessions()) {
-            <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">+ Add</button>
+            <button class="btn btn-sm btn-outline-primary" (click)="scheduleSession()">
+              + Add
+            </button>
           }
         </div>
 
@@ -39,11 +43,21 @@
           <div class="card-body border-bottom">
             <div class="mb-3">
               <label class="form-label">Topic</label>
-              <input type="text" class="form-control" [(ngModel)]="sessionTopic" placeholder="Session topic" />
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="sessionTopic"
+                placeholder="Session topic"
+              />
             </div>
             <div class="mb-3">
               <label class="form-label">Location</label>
-              <input type="text" class="form-control" [(ngModel)]="sessionLocation" placeholder="Location or meeting link" />
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="sessionLocation"
+                placeholder="Location or meeting link"
+              />
             </div>
             <div class="mb-3">
               <label class="form-label">Start Time</label>
@@ -51,7 +65,9 @@
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-primary" (click)="createSession()">Create</button>
-              <button class="btn btn-sm btn-outline-secondary" (click)="showSessionForm = false">Cancel</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showSessionForm = false">
+                Cancel
+              </button>
             </div>
           </div>
         }
@@ -61,13 +77,17 @@
             <li class="list-group-item d-flex justify-content-between align-items-start">
               <div>
                 <div class="fw-semibold">{{ session.topic }}</div>
-                <small class="text-white-50">{{ session.startTime.toDate() | date: 'medium' }}</small>
+                <small class="text-white-50">{{
+                  session.startTime.toDate() | date: 'medium'
+                }}</small>
                 @if (session.location) {
                   <div class="small text-white-50">{{ session.location }}</div>
                 }
               </div>
               @if (canEditSessions()) {
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteSession(session.id)">Delete</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteSession(session.id)">
+                  Delete
+                </button>
               }
             </li>
           } @empty {
@@ -81,7 +101,12 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Resources</h5>
           @if (canEditResources()) {
-            <button class="btn btn-sm btn-outline-primary" (click)="showResourceForm = !showResourceForm">+ Add</button>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="showResourceForm = !showResourceForm"
+            >
+              + Add
+            </button>
           }
         </div>
 
@@ -89,11 +114,21 @@
           <div class="card-body border-bottom">
             <div class="mb-3">
               <label class="form-label">Title</label>
-              <input type="text" class="form-control" [(ngModel)]="resourceTitle" placeholder="Resource title" />
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="resourceTitle"
+                placeholder="Resource title"
+              />
             </div>
             <div class="mb-3">
               <label class="form-label">URL</label>
-              <input type="text" class="form-control" [(ngModel)]="resourceUrl" placeholder="https://..." />
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="resourceUrl"
+                placeholder="https://..."
+              />
             </div>
             <div class="mb-3">
               <label class="form-label">Type</label>
@@ -104,7 +139,9 @@
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-primary" (click)="addResource()">Add</button>
-              <button class="btn btn-sm btn-outline-secondary" (click)="showResourceForm = false">Cancel</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="showResourceForm = false">
+                Cancel
+              </button>
             </div>
           </div>
         }
@@ -112,12 +149,16 @@
         <ul class="list-group list-group-flush">
           @for (resource of resources; track resource.id) {
             <li class="list-group-item d-flex justify-content-between align-items-start">
-              <div style="word-break: break-word;">
-                <a [href]="resource.url" target="_blank" class="fw-semibold">{{ resource.title }}</a>
-                <div class="small text-muted">{{ resource.type }}</div>
+              <div style="word-break: break-word">
+                <a [href]="resource.url" target="_blank" class="fw-semibold">{{
+                  resource.title
+                }}</a>
+                <div class="small text-white-50">{{ resource.type }}</div>
               </div>
               @if (canEditResources()) {
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource.id)">Delete</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource.id)">
+                  Delete
+                </button>
               }
             </li>
           } @empty {
@@ -135,7 +176,10 @@
         </div>
 
         <!-- Messages -->
-        <div #messagesContainer class="card-body overflow-auto flex-grow-1 d-flex flex-column gap-2">
+        <div
+          #messagesContainer
+          class="card-body overflow-auto flex-grow-1 d-flex flex-column gap-2"
+        >
           @for (message of messages$ | async; track message.id) {
             <div class="d-flex gap-2 align-items-start">
               <span class="badge bg-primary rounded-pill mt-1">{{ message.senderName[0] }}</span>
