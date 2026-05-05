@@ -48,6 +48,10 @@ export class Account implements OnInit {
   async ngOnInit() {
     const currentUser = this.authService.currentUser$();
     if (currentUser) {
+      // Load all courses first
+      await this.loadCourses();
+
+      // Then fetch user and load enrolled courses
       const userData = await this.firebaseService.getUser(currentUser.uid);
       if (userData) {
         this.user.set(userData);
@@ -58,9 +62,10 @@ export class Account implements OnInit {
           university: userData.university,
         });
 
-        // Load courses
-        await this.loadCourses();
-        await this.loadEnrolledCourses(userData.enrolledCourseIds);
+        // Load enrolled courses using the fetched user data
+        if (userData.enrolledCourseIds && userData.enrolledCourseIds.length > 0) {
+          await this.loadEnrolledCourses(userData.enrolledCourseIds);
+        }
       }
     }
   }
@@ -96,7 +101,16 @@ export class Account implements OnInit {
   }
 
   async loadEnrolledCourses(courseIds: string[]) {
+    if (!courseIds || courseIds.length === 0) {
+      this.enrolledCourses = [];
+      return;
+    }
+
     this.enrolledCourses = this.allCourses.filter((course) => courseIds.includes(course.code));
+
+    // Log for debugging
+    console.log('Enrolled course IDs from Firebase:', courseIds);
+    console.log('Filtered enrolled courses:', this.enrolledCourses);
   }
 
   get filteredDepartments(): string[] {
@@ -160,8 +174,12 @@ export class Account implements OnInit {
         await this.firebaseService.updateUser(this.user()!.uid, {
           enrolledCourseIds: updatedIds,
         });
-        this.user.update((user) => (user ? { ...user, enrolledCourseIds: updatedIds } : null));
-        await this.loadEnrolledCourses(updatedIds);
+        // Refresh user data from Firebase to confirm save
+        const refreshedUser = await this.firebaseService.getUser(this.user()!.uid);
+        if (refreshedUser) {
+          this.user.set(refreshedUser);
+          await this.loadEnrolledCourses(refreshedUser.enrolledCourseIds);
+        }
         this.success.set('Course added successfully');
         this.error.set('');
         // Clear the selection fields after successful addition
@@ -186,8 +204,12 @@ export class Account implements OnInit {
       await this.firebaseService.updateUser(this.user()!.uid, {
         enrolledCourseIds: updatedIds,
       });
-      this.user.update((user) => (user ? { ...user, enrolledCourseIds: updatedIds } : null));
-      await this.loadEnrolledCourses(updatedIds);
+      // Refresh user data from Firebase to confirm save
+      const refreshedUser = await this.firebaseService.getUser(this.user()!.uid);
+      if (refreshedUser) {
+        this.user.set(refreshedUser);
+        await this.loadEnrolledCourses(refreshedUser.enrolledCourseIds);
+      }
       this.success.set('Course removed successfully');
       this.error.set('');
     } catch (err: any) {
