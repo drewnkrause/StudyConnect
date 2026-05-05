@@ -3,17 +3,27 @@
 }
 
 .hover-bg:hover {
-  background-color: rgba(0, 0, 0, 0.02) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 .card-header:hover {
-  background-color: rgba(13, 110, 253, 0.05) !important;
+  background-color: rgba(245, 166, 35, 0.1) !important;
 }
 
 .text-primary {
-  color: #0d6efd !important;
+  color: var(--accent) !important;
 }
 
 .bg-light-subtle {
-  background-color: #f8f9fa !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+.input-group-text {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+.input-group .form-control {
+  border-color: var(--border) !important;
 }

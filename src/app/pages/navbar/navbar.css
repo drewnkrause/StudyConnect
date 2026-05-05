@@ -1,3 +1,52 @@
 .dropdown-menu {
   min-width: 180px;
 }
+.navbar {
+  background: linear-gradient(135deg, #f5a623 0%, #f76b1c 100%) !important;
+  border-bottom: none !important;
+  padding: 0.75rem 0 !important;
+  box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3) !important;
+}
+
+.navbar-brand {
+  color: #1e1e24 !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+.navbar-brand:hover {
+  color: #1e1e24 !important;
+  opacity: 0.85 !important;
+}
+
+.nav-link {
+  color: rgba(30, 30, 36, 0.85) !important;
+  font-weight: 500 !important;
+  padding: 0.4rem 0.85rem !important;
+  border-radius: 6px !important;
+  transition: all 0.2s !important;
+}
+
+.nav-link:hover {
+  color: #1e1e24 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.nav-link.active {
+  color: #1e1e24 !important;
+  background: rgba(255, 255, 255, 0.25) !important;
+  font-weight: 600 !important;
+}
+
+.navbar-toggler {
+  border-color: rgba(30, 30, 36, 0.3) !important;
+}
+
+.navbar-toggler-icon {
+  filter: brightness(0) !important;
+}
+
+.dropdown-toggle::after {
+  border-top-color: #1e1e24 !important;
+}
