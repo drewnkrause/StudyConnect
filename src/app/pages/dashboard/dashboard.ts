@@ -17,6 +17,7 @@ export class Dashboard implements OnInit {
   userName: string = 'User';
   myGroups: Group[] = [];
   upcomingSessions: any[] = [];
+  currentUserId: string = '';
 
   constructor(
     private firebase: FirebaseService,
@@ -29,10 +30,28 @@ export class Dashboard implements OnInit {
     return this.myGroups.find((g) => g.id === groupId)?.title || 'Unknown Group';
   }
 
+  editGroup(groupId: string): void {
+    this.router.navigate(['/groups', groupId, 'edit']);
+  }
+
+  async deleteGroup(groupId: string): Promise<void> {
+    if (confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+      try {
+        await this.firebase.deleteGroup(groupId);
+        this.myGroups = this.myGroups.filter((g) => g.id !== groupId);
+        this.upcomingSessions = this.upcomingSessions.filter((s) => s.groupId !== groupId);
+        this.cdr.detectChanges();
+      } catch (error) {
+        console.error('Error deleting group:', error);
+      }
+    }
+  }
+
   async ngOnInit(): Promise<void> {
     const user = this.auth.currentUser$();
     if (!user) return;
 
+    this.currentUserId = user.uid;
     this.userName = user.displayName || user.email || 'there';
     try {
       this.myGroups = await this.firebase.getUserGroups(user.uid);
@@ -47,6 +66,29 @@ export class Dashboard implements OnInit {
       console.error('Error loading dashboard data:', error);
     } finally {
       this.cdr.detectChanges();
+    }
+  }
+
+  isGroupOwner(group: Group): boolean {
+    return group.ownerId === this.currentUserId;
+  }
+
+  isGroupMember(group: Group): boolean {
+    return group.members.includes(this.currentUserId);
+  }
+
+  async leaveGroup(groupId: string): Promise<void> {
+    if (!confirm('Leave this group?')) {
+      return;
+    }
+
+    try {
+      await this.firebase.leaveGroup(groupId, this.currentUserId);
+      this.myGroups = this.myGroups.filter((g) => g.id !== groupId);
+      this.upcomingSessions = this.upcomingSessions.filter((s) => s.groupId !== groupId);
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Error leaving group:', error);
     }
   }
 

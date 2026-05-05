@@ -22,10 +22,38 @@
               <p class="card-text text-muted">{{ group.courseId }}</p>
               <span class="badge bg-secondary">{{ group.members.length }} members</span>
             </div>
-            <div class="card-footer bg-transparent">
+            <div
+              class="card-footer bg-transparent d-flex justify-content-between align-items-center"
+            >
               <a [routerLink]="['/groups', group.id]" class="btn btn-outline-primary btn-sm"
                 >View Group</a
               >
+              <div class="d-flex gap-2">
+                @if (isGroupOwner(group)) {
+                  <button
+                    type="button"
+                    class="btn btn-outline-warning btn-sm"
+                    (click)="editGroup(group.id)"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="deleteGroup(group.id)"
+                  >
+                    Delete
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="leaveGroup(group.id)"
+                  >
+                    Leave
+                  </button>
+                }
+              </div>
             </div>
           </div>
         </div>

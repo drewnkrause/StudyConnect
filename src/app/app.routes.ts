@@ -9,6 +9,7 @@ import { CreateGroup } from './pages/create-group/create-group';
 import { BrowseGroups } from './pages/browse-groups/browse-groups';
 import { Layout } from './pages/layout/layout';
 import { CourseCatalog } from './pages/course-catalog/course-catalog';
+import { EditGroup } from './edit-group/edit-group';
 
 export const routes: Routes = [
   {
@@ -21,6 +22,7 @@ export const routes: Routes = [
       { path: 'groups', component: Group },
       { path: 'account', component: Account },
       { path: 'groups/create', component: CreateGroup },
+      { path: 'groups/:id/edit', component: EditGroup },
       { path: 'groups/browse', component: BrowseGroups },
       { path: 'courses', component: CourseCatalog },
       { path: 'groups/:id', component: Group },

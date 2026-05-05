@@ -159,6 +159,11 @@ export class FirebaseService {
     await updateDoc(ref, data);
   }
 
+  async deleteGroup(groupId: string): Promise<void> {
+    const ref = doc(this.db, 'groups', groupId);
+    await deleteDoc(ref);
+  }
+
   async getUserByEmail(email: string): Promise<UserAccount | null> {
     const ref = collection(this.db, 'users');
     const q = query(ref, where('email', '==', email));
