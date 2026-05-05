@@ -4,6 +4,6 @@ export interface StudySession {
   id: string;
   groupId: string;
   topic: string;
-  locaiton: string;
+  location: string;
   startTime: Timestamp | FieldValue;
 }
