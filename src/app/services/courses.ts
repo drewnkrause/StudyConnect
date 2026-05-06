@@ -11,7 +11,7 @@ export class Courses {
 
   async getCourses(): Promise<Course[]> {
     return firstValueFrom(
-      this.http.get<any[]>('/courses.json')
+      this.http.get<any[]>('courses.json')
     );
   }
 }
